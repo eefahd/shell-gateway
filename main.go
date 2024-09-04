@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/google/shlex"
 )
 
 type Config struct {
@@ -88,7 +90,10 @@ func isValidCommand(command string) bool {
 }
 
 func executeScript(scriptPath string, arguments string) (string, error) {
-	args := strings.Fields(arguments)
+	args, err := shlex.Split(arguments)
+	if err != nil {
+		return "", err
+	}
 	args = append([]string{scriptPath}, args...)
 	cmd := exec.Command("sh", args...)
 	output, err := cmd.CombinedOutput()
@@ -96,7 +101,10 @@ func executeScript(scriptPath string, arguments string) (string, error) {
 }
 
 func executeCommand(command string, arguments string) (string, error) {
-	args := strings.Fields(arguments)
+	args, err := shlex.Split(arguments)
+	if err != nil {
+		return "", err
+	}
 	cmd := exec.Command(command, args...)
 	output, err := cmd.CombinedOutput()
 	return string(output), err
